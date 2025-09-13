@@ -10,30 +10,25 @@ if (!TOKEN) {
   throw new Error('❌ Укажи BOT_TOKEN в настройках Render Environment');
 }
 
-const APP_URL = `https://${HOSTNAME}`; // Render подставит hostname
+const APP_URL = `https://${HOSTNAME}`;
 const app = express();
 
-// Создаём бота в режиме webhook
-const bot = new TelegramBot(TOKEN, { webHook: { port: PORT } });
+// Создаём бота без запуска сервера внутри него
+const bot = new TelegramBot(TOKEN, { polling: false });
 
 // Устанавливаем webhook
 bot.setWebHook(`${APP_URL}/webhook`);
-
 console.log(`✅ Webhook установлен: ${APP_URL}/webhook`);
 
 // --- Handlers ---
 bot.onText(/\/start/, (msg) => {
   const firstName = msg.from.first_name || 'пользователь';
-  const text = `Привет, ${firstName}! 👋\nДобро пожаловать!`;
-  bot.sendMessage(msg.chat.id, text, mainKeyboard());
+  bot.sendMessage(msg.chat.id, `Привет, ${firstName}! 👋\nДобро пожаловать!`, mainKeyboard());
 });
 
 bot.on('message', (msg) => {
   if (msg.text === 'О нас') {
-    bot.sendMessage(
-      msg.chat.id,
-      '👨‍🔬 Мы команда, которая исследует электролиз воды, мембраны и катализаторы для повышения выхода водорода.'
-    );
+    bot.sendMessage(msg.chat.id, '👨‍🔬 Мы команда, которая исследует электролиз воды, мембраны и катализаторы для повышения выхода водорода.');
   } else if (msg.text === 'Видео') {
     bot.sendMessage(msg.chat.id, '🎥 Видео пока нет. Тут появится ссылка позже!');
   } else if (msg.text === 'Вопросы') {
@@ -41,7 +36,6 @@ bot.on('message', (msg) => {
   }
 });
 
-// --- Клавиатура ---
 function mainKeyboard() {
   return {
     reply_markup: {
@@ -54,7 +48,7 @@ function mainKeyboard() {
   };
 }
 
-// --- Express endpoint для Telegram ---
+// --- Express ---
 app.use(express.json());
 
 app.post('/webhook', (req, res) => {
@@ -66,7 +60,6 @@ app.get('/', (req, res) => {
   res.send('Бот работает!');
 });
 
-// Запуск сервера (важно для Render)
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
 });
