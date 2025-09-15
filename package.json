@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "node-telegram-bot-api": "^0.61.0"
+    "node-telegram-bot-api": "^0.61.0",
+    "mailersend": "^2.0.0",
+    "dotenv": "^16.3.1"
   }
 }
