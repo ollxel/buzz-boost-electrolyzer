@@ -5,6 +5,7 @@ import TelegramBot from 'node-telegram-bot-api';
 const TOKEN = process.env.BOT_TOKEN;
 const HOSTNAME = process.env.RENDER_EXTERNAL_HOSTNAME;
 const PORT = process.env.PORT || 10000;
+const TARGET_USERNAME = '@Kirushalybitutok'; // Целевой пользователь для вопросов
 
 if (!TOKEN) {
   throw new Error('❌ Укажи BOT_TOKEN в настройках Render Environment');
@@ -13,10 +14,8 @@ if (!TOKEN) {
 const APP_URL = `https://${HOSTNAME}`;
 const app = express();
 
-// Создаём бота без запуска сервера внутри него
 const bot = new TelegramBot(TOKEN, { polling: false });
 
-// Устанавливаем webhook
 bot.setWebHook(`${APP_URL}/webhook`);
 console.log(`✅ Webhook установлен: ${APP_URL}/webhook`);
 
@@ -27,12 +26,24 @@ bot.onText(/\/start/, (msg) => {
 });
 
 bot.on('message', (msg) => {
-  if (msg.text === 'О нас') {
+  if (!msg.text) return;
+
+  const text = msg.text;
+  
+  if (text === 'О нас') {
     bot.sendMessage(msg.chat.id, '👨‍🔬 Мы команда, которая исследует электролиз воды, мембраны и катализаторы для повышения выхода водорода.');
-  } else if (msg.text === 'Видео') {
+  } else if (text === 'Видео') {
     bot.sendMessage(msg.chat.id, '🎥 Видео пока нет. Тут появится ссылка позже!');
-  } else if (msg.text === 'Вопросы') {
+  } else if (text === 'Вопросы') {
     bot.sendMessage(msg.chat.id, '❓ Задай свой вопрос — мы пока сохраняем его локально.');
+  } else if (text === 'Участники') {
+    bot.sendMessage(msg.chat.id, 'Здесь будет список участников');
+  } else if (!text.startsWith('/')) {
+    // Отправляем вопрос целевому пользователю
+    const question = `Вопрос от ${msg.from.first_name} (@${msg.from.username}):\n${text}`;
+    bot.sendMessage(msg.chat.id, `Ваш вопрос отправлен ${TARGET_USERNAME}`);
+    // Здесь должна быть реальная отправка целевому пользователю
+    console.log(`Вопрос для ${TARGET_USERNAME}: ${question}`);
   }
 });
 
@@ -41,7 +52,7 @@ function mainKeyboard() {
     reply_markup: {
       keyboard: [
         ['О нас', 'Видео'],
-        ['Вопросы']
+        ['Вопросы', 'Участники'] // Добавлена новая кнопка
       ],
       resize_keyboard: true
     }
