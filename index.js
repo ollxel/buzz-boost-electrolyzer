@@ -5,7 +5,7 @@ import TelegramBot from 'node-telegram-bot-api';
 const TOKEN = process.env.BOT_TOKEN;
 const HOSTNAME = process.env.RENDER_EXTERNAL_HOSTNAME;
 const PORT = process.env.PORT || 10000;
-const TARGET_USERNAME = '@Kirushalybitutok'; // Целевой пользователь для вопросов
+const TARGET_USERNAME = '@ollxel'; // Целевой пользователь для вопросов
 
 if (!TOKEN) {
   throw new Error('❌ Укажи BOT_TOKEN в настройках Render Environment');
